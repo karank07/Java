@@ -8,9 +8,19 @@ import java.net.Socket;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+/**
+ * @author Karan
+ *
+ */
+
+/**
+ * 
+ * class BClient extends JFrame implements ActionListener- to create client sockets and GUI for client
+ */
 public class BClient extends JFrame implements ActionListener {
 	Socket s;
 	ClientHandler ch;
@@ -22,13 +32,18 @@ public class BClient extends JFrame implements ActionListener {
 	static JTextArea chatReadArea;
 	JButton send, exit, submit;
 	JLabel usernameLabel,sendLabel;
+	JScrollPane readAreaScroll;
 
 	String username;
+	
 	public static void main(String[] args) {
 		new BClient();
 
 	}
 
+	/**
+	 * Constructor to initialize BClient object
+	 */
 	public BClient() {
 		try {
 			s = new Socket("localhost", 9996);
@@ -41,6 +56,9 @@ public class BClient extends JFrame implements ActionListener {
 		}
 	}
 
+	/**
+	 * to create chat view for each client
+	 */
 	public void createChatView() {
 		chatFrame = new JFrame("Broadcaster");
 
@@ -54,10 +72,13 @@ public class BClient extends JFrame implements ActionListener {
 		
 		chatReadArea = new JTextArea();
 		chatReadArea.setBounds(50, 40, 400, 400);
-		chatReadArea.setFont(chatReadArea.getFont().deriveFont(18f));
+		chatReadArea.setFont(chatReadArea.getFont().deriveFont(16f));
 		chatReadArea.setText("Broadcasted Messages :");
 		chatReadArea.setEditable(false);
-
+		chatReadArea.setLineWrap(true);
+		chatReadArea.setWrapStyleWord(true);
+		readAreaScroll = new JScrollPane(chatReadArea);
+		readAreaScroll.setBounds(50, 40, 400, 400);
 		sendLabel=new JLabel("Your Message: ");
 		sendLabel.setBounds(50, 450, 150, 25);
 		
@@ -77,7 +98,8 @@ public class BClient extends JFrame implements ActionListener {
 		chatFrame.add(usernameField);
 		chatFrame.add(submit);
 		chatFrame.add(chatSendField);
-		chatFrame.add(chatReadArea);
+		//chatFrame.add(chatReadArea);
+		chatFrame.add(readAreaScroll);
 		chatFrame.add(send);
 		chatFrame.add(exit);
 		chatFrame.setSize(580, 580);
@@ -90,9 +112,12 @@ public class BClient extends JFrame implements ActionListener {
 
 	}
 
+	/**
+	 * @param msg to display
+	 */
 	public static void setOutput(String msg) {
 		System.out.println(msg);
-		chatReadArea.append("\n" + msg);
+		chatReadArea.append( "\n" + msg);
 	}
 
 	@Override
@@ -103,7 +128,7 @@ public class BClient extends JFrame implements ActionListener {
 			chatSendField.setEditable(true);
 		}
 			if (e.getSource() == send) {
-				String msg = username+": "+str;
+				String msg =username+": "+str;
 				ch.sendMsgToServer(msg);
 				chatSendField.setText("");
 
