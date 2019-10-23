@@ -8,6 +8,16 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.Socket;
 
+/**
+ * @author Karan
+ *
+ */
+
+/**
+ * 
+ * class ServerHandler extends Thread to manage connections to server socket and broadcasting
+ * message
+ */
 public class ServerHandler extends Thread {
 
 	Socket socket;
@@ -17,11 +27,18 @@ public class ServerHandler extends Thread {
 	BufferedReader br;
 	PrintStream ps;
 
+	/**
+	 * ServerHandler constructor to instantiate object
+	 * 
+	 * @param socket
+	 * @param server
+	 */
 	public ServerHandler(Socket socket, BServer server) {
 		this.socket = socket;
 		this.server = server;
 	}
 
+	@Override
 	public void run() {
 		try {
 			in = socket.getInputStream();
@@ -30,35 +47,43 @@ public class ServerHandler extends Thread {
 			ps = new PrintStream(out);
 			String msg;
 			while (true) {
-				if(socket.isClosed())
-				{
-					server.clients.remove(this);
-					break;
-				}
+
 				msg = br.readLine();
-				
+
 				if (msg == null)
 					break;
 				broadcast(msg);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
-
+			close();
+		}finally {
+			close();
 		}
 	}
 
+	/**
+	 * @param msg to broadcast to each client
+	 */
 	public void broadcast(String msg) {
-		for (ServerHandler client : server.clients) {
+		for (ServerHandler client : server.socketsList) {
 			if (client.equals(this))
 				continue;
 			client.sendToClient(msg);
 		}
 	}
 
+	/**
+	 * @param msg to broadcast
+	 */
 	public void sendToClient(String msg) {
 		ps.println(msg);
+		ps.flush();
 	}
 
+	/**
+	 * to close all streams
+	 */
 	public void close() {
 		try {
 			br.close();

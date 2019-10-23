@@ -8,6 +8,14 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.Socket;
 
+/**
+ * @author Karan
+ *
+ */
+/**
+ * 
+ *class ClientHandler extends Thread- to manage reading and writing data from stream for each client
+ */
 public class ClientHandler extends Thread {
 
 	Socket socket;
@@ -18,16 +26,26 @@ public class ClientHandler extends Thread {
 
 	BClient client;
 
+	/**
+	 * Constructor to initialize object
+	 * @param socket
+	 * @param client
+	 */
 	public ClientHandler(Socket socket, BClient client) {
 		this.socket = socket;
 		this.client = client;
 	}
 
+	/**
+	 * @param msg writing to output stream
+	 */
 	public void sendMsgToServer(String msg) {
 
 		ps.println(msg);
+		ps.flush();
 	}
 
+	@Override
 	public void run() {
 		try {
 			in = socket.getInputStream();
@@ -36,20 +54,22 @@ public class ClientHandler extends Thread {
 			br = new BufferedReader(new InputStreamReader(in));
 			while (true) {
 				String reply;
-				try {
-					reply = br.readLine();
-					if(reply==null)
-						break;
+				reply = br.readLine();
+				if(reply==null)
+					break;
 					BClient.setOutput(reply);
-				} catch (IOException e) {
-					e.printStackTrace();
 				}
-			}
+			
 		} catch (IOException e) {
 			e.printStackTrace();
+		}finally {
+			close();
 		}
 	}
 
+	/**
+	 * to close all streams
+	 */
 	public void close() {
 		try {
 			ps.close();
